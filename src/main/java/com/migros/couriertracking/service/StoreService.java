@@ -1,6 +1,6 @@
 package com.migros.couriertracking.service;
 
-import com.migros.couriertracking.Repository.StoreRepository;
+import com.migros.couriertracking.repository.StoreRepository;
 import com.migros.couriertracking.model.StoreDTO;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +17,17 @@ public class StoreService {
     }
 
     public List<StoreDTO> getAllStores() {
-
-        return storeRepository.findAll()
+/*
+      return storeRepository.findAll()
                 .stream()
                 .map(store -> StoreDTO.builder()
                         .lng(store.getLng())
                         .lat(store.getLat())
-                        .name(store.getName()).build())
+                        .name(store.getName())
+                        .build())
                 .collect(Collectors.toList());
 
+ */
+ return null;
     }
 }

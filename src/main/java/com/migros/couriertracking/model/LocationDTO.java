@@ -1,12 +1,11 @@
 package com.migros.couriertracking.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Builder
+@Data
 public class LocationDTO {
     private LocalDateTime timestamp;
     private double lat;

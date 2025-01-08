@@ -19,12 +19,15 @@ public class CourierController {
     public ResponseEntity<Void> updateLocation(@PathVariable String courierId,
                                                @RequestParam double lat,
                                                @RequestParam double lng) {
-        courierService.updateLocation(courierId, lat, lng);
+        courierService.createLocation(courierId, lat, lng);
         return ResponseEntity.ok().build();
-    }
 
+    }
+/*
     @GetMapping("/{courierId}/distance")
     public ResponseEntity<Double> getTotalTravelDistance(@PathVariable String courierId) {
+
         return ResponseEntity.ok(courierService.getTotalTravelDistance(courierId));
-    }
+
+    }*/
 }

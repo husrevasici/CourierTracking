@@ -1,40 +1,71 @@
 package com.migros.couriertracking.service;
 
-import com.migros.couriertracking.model.CourierDTO;
-import com.migros.couriertracking.model.LocationDTO;
-import com.migros.couriertracking.model.StoreDTO;
+import com.migros.couriertracking.entity.Courier;
+import com.migros.couriertracking.entity.CourierLocation;
+import com.migros.couriertracking.entity.CourierMovementHistory;
+import com.migros.couriertracking.repository.CourierLocationRepository;
+import com.migros.couriertracking.repository.CourierMovementHistoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 @Service
 public class CourierService {
-    private final StoreService storeService;
-    private final Map<String, CourierDTO> couriers = new ConcurrentHashMap<>();
-    private final List<StoreDTO> stores = loadStores();
 
-    public CourierService(StoreService storeService) {
-        this.storeService = storeService;
+    @Autowired
+    private com.migros.couriertracking.repository.CourierRepository courierRepository;
+
+    @Autowired
+    CourierLocationRepository courierLocationRepository;
+    @Autowired
+    CourierMovementHistoryRepository courierMovementHistoryRepository;
+
+    public void createLocation(String courierId, double lat, double lng) {
+// TODO: validasyon ekle. controllerdan dto gelsin. dto içinde validasyon
+
+        Courier courier = courierRepository.findCourierByCourierId(courierId);
+
+        if (Objects.isNull(courier)) {
+            new RuntimeException("Courier not found");
+        }
+
+        CourierLocation courierLocation = new CourierLocation();
+        courierLocation.setLatitude(lat);
+        courierLocation.setLongitude(lng);
+        courierLocation.setTimestamp(LocalDateTime.now());
+        courierLocation.setCourier(courier);
+        courierLocationRepository.save(courierLocation);
+
+        /* */
+        CourierMovementHistory courierMovementHistory = courierMovementHistoryRepository.findByCourier_CourierId(courierId);
+        if (courierMovementHistory.getCourier().getCourierId().equalsIgnoreCase(courierId)) {
+            // courierMovementHistory.setStoreId(); // TODO: en yakın olduğu store'un'id'sini bulup eklicez.
+            courierMovementHistoryRepository.updateCourierId(LocalDateTime.now(), null ,courierId);
+        }else {
+            CourierMovementHistory courierMovementHistory1 = new CourierMovementHistory();
+            courierMovementHistory1.setDate(LocalDateTime.now());
+            courierMovementHistory1.setCourier(courier);
+            courierMovementHistory1.setStoreId(null);
+            courierMovementHistoryRepository.save(courierMovementHistory1);
+        }
+
+        /*
+        courierRepository.save(Courier.builder()
+                .courierId(courierId)
+                .courierLocations(List.of(CourierLocation.builder()
+                        .courier(courier)
+                        .longitude(lng)
+                        .latitude(lat)
+                        .timestamp(LocalDateTime.now())
+                        .build()))
+                .build()); */
+
+
+        //checkStoreEntrance(courier, lat, lng);
     }
-
-    public void updateLocation(String courierId, double lat, double lng) {
-        // 1. Kuryenin mevcut konumunu al veya yeni bir kurye oluştur
-        CourierDTO courier = couriers.computeIfAbsent(courierId, id -> new CourierDTO(id));
-
-        // 2. Yeni konumu ekle
-        LocationDTO newLocation = new LocationDTO();
-        newLocation.setTimestamp(LocalDateTime.now());
-        newLocation.setLat(lat);
-        newLocation.setLng(lng);
-        courier.getLocationDTOS().add(newLocation);
-
-        // 3. Mağaza girişini kontrol et
-        checkStoreEntrance(courier, lat, lng);
-    }
-
+/*
     private void checkStoreEntrance(CourierDTO courier, double lat, double lng) {
         for (StoreDTO store : stores) {
             double distance = calculateDistance(lat, lng, store.getLat(), store.getLng());
@@ -73,7 +104,11 @@ public class CourierService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c * 1000; // metre cinsine çevir
     }
+
+
+ */
 }
+
 /*
 Kuryenin Mevcut Konumunu Alma: computeIfAbsent metodu, eğer kurye daha önce kaydedilmemişse yeni bir Courier nesnesi oluşturur.
 

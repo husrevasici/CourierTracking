@@ -1,21 +1,57 @@
 package com.migros.couriertracking.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-@Getter
-@Setter
+import java.util.List;
+
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Table(name = "courier")
+
 public class Courier {
     @Id
     private String courierId;
-    private double totalDistance = 0.0;
-    private double lastLat;
-    private double lastLng;
-    private LocalDateTime lastEntryTime;
+
+    private String nameAndSurname;
+
+    @OneToMany(mappedBy = "courier", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourierLocation> courierLocations;
+
+    @OneToOne(mappedBy = "courier", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private CourierMovementHistory lastMovement;
+
+    public String getCourierId() {
+        return courierId;
+    }
+
+    public void setCourierId(String courierId) {
+        this.courierId = courierId;
+    }
+
+    public String getNameAndSurname() {
+        return nameAndSurname;
+    }
+
+    public void setNameAndSurname(String nameAndSurname) {
+        this.nameAndSurname = nameAndSurname;
+    }
+
+    public List<CourierLocation> getCourierLocations() {
+        return courierLocations;
+    }
+
+    public void setCourierLocations(List<CourierLocation> courierLocations) {
+        this.courierLocations = courierLocations;
+    }
+
+    public CourierMovementHistory getLastMovement() {
+        return lastMovement;
+    }
+
+    public void setLastMovement(CourierMovementHistory lastMovement) {
+        this.lastMovement = lastMovement;
+    }
 }
+
+

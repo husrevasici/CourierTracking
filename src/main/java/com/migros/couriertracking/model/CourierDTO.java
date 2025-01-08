@@ -8,10 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class CourierDTO {
     private String courierId;
     private List<LocationDTO> locationDTOS = new ArrayList<>();
@@ -26,5 +22,31 @@ public class CourierDTO {
     public void setLastEntranceTime(StoreDTO store, LocalDateTime time) {
         lastEntranceTimes.put(store.getId(), time);
     }
+
+
+    public void setCourierId(String courierId) {
+        this.courierId = courierId;
+    }
+
+    public void setLocationDTOS(List<LocationDTO> locationDTOS) {
+        this.locationDTOS = locationDTOS;
+    }
+
+    public void setLastEntranceTimes(Map<Long, LocalDateTime> lastEntranceTimes) {
+        this.lastEntranceTimes = lastEntranceTimes;
+    }
+
+    public String getCourierId() {
+        return courierId;
+    }
+
+    public List<LocationDTO> getLocationDTOS() {
+        return locationDTOS;
+    }
+
+    public Map<Long, LocalDateTime> getLastEntranceTimes() {
+        return lastEntranceTimes;
+    }
+
 
 }
