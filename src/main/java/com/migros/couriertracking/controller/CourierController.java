@@ -1,13 +1,17 @@
 package com.migros.couriertracking.controller;
 
+import com.migros.couriertracking.constant.ApiUrls;
+import com.migros.couriertracking.dto.LocationRequestDTO;
+import com.migros.couriertracking.dto.ResponseDTO;
 import com.migros.couriertracking.service.CourierService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/couriers")
+@RequestMapping(ApiUrls.COURIERS)
 public class CourierController {
+
     private final CourierService courierService;
 
     @Autowired
@@ -15,19 +19,13 @@ public class CourierController {
         this.courierService = courierService;
     }
 
-    @PostMapping("/{courierId}/location")
-    public ResponseEntity<Void> updateLocation(@PathVariable String courierId,
-                                               @RequestParam double lat,
-                                               @RequestParam double lng) {
-        courierService.createLocation(courierId, lat, lng);
-        return ResponseEntity.ok().build();
-
+    @PostMapping(ApiUrls.ADD_COURIER_LOCATION_PATH)
+    public ResponseDTO addLocation(@Valid @RequestBody LocationRequestDTO locationRequestDTO) {
+        return courierService.addLocation(locationRequestDTO);
     }
-/*
-    @GetMapping("/{courierId}/distance")
-    public ResponseEntity<Double> getTotalTravelDistance(@PathVariable String courierId) {
 
-        return ResponseEntity.ok(courierService.getTotalTravelDistance(courierId));
-
-    }*/
+    @GetMapping(ApiUrls.COURIER_TOTAL_DISTANCE_PATH)
+    public ResponseDTO getTotalTravelDistance(@PathVariable String courierId) {
+        return courierService.getTotalTravelDistance(courierId);
+    }
 }

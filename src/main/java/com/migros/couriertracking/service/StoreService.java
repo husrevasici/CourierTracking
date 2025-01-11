@@ -1,33 +1,23 @@
 package com.migros.couriertracking.service;
 
-import com.migros.couriertracking.repository.StoreRepository;
-import com.migros.couriertracking.model.StoreDTO;
+import com.migros.couriertracking.mapper.StoreMapper;
+import com.migros.couriertracking.dto.StoreDTO;
+import com.migros.couriertracking.repository.dao.StoreDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class StoreService {
 
-    private final StoreRepository storeRepository;
-
-    public StoreService(StoreRepository storeRepository) {
-        this.storeRepository = storeRepository;
-    }
+    @Autowired
+    StoreDAO storeDAO;
+    @Autowired
+    StoreMapper storeMapper;
 
     public List<StoreDTO> getAllStores() {
-/*
-      return storeRepository.findAll()
-                .stream()
-                .map(store -> StoreDTO.builder()
-                        .lng(store.getLng())
-                        .lat(store.getLat())
-                        .name(store.getName())
-                        .build())
-                .collect(Collectors.toList());
-
- */
- return null;
+        var allStore = storeDAO.getAllStore();
+        return storeMapper.toDTOList(allStore);
     }
 }
