@@ -1,5 +1,6 @@
 package com.migros.couriertracking.service;
 
+import com.migros.couriertracking.dto.CurierRequestDTO;
 import com.migros.couriertracking.dto.LocationRequestDTO;
 import com.migros.couriertracking.dto.ResponseDTO;
 import com.migros.couriertracking.exception.GenericException;
@@ -18,7 +19,17 @@ public class CourierService {
     private TravelerManager travelerManager;
 
     private static final String LOCATION_ADDED_SUCCESSFULLY = "Location added successfully";
+    private static final String COURIER_CREATED = "new courier created";
     private static final String TOTAL_TRAVELER_DISTANCE = "Total traveler distance calculated";
+
+    public ResponseDTO createCourier(CurierRequestDTO locationRequestDTO) {
+        try {
+            courierManager.createCourier(locationRequestDTO);
+            return ResponseUtils.createSuccessResponse(null, COURIER_CREATED);
+        } catch (GenericException e) {
+            return ResponseUtils.createErrorResponse(e);
+        }
+    }
 
     public ResponseDTO addLocation(LocationRequestDTO locationRequestDTO) {
         try {
@@ -30,7 +41,7 @@ public class CourierService {
         }
     }
 
-    public ResponseDTO getTotalTravelDistance(String courierId) {
+    public ResponseDTO getTotalTravelDistance(Long courierId) {
         try {
             return ResponseUtils.createSuccessResponse(courierManager.getTotalTravelDistance(courierId), TOTAL_TRAVELER_DISTANCE);
         } catch (GenericException e) {

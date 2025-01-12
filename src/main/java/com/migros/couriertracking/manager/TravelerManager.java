@@ -5,12 +5,12 @@ import com.migros.couriertracking.dto.LocationRequestDTO;
 import com.migros.couriertracking.dto.StoreDTO;
 import com.migros.couriertracking.entity.CourierMovementHistory;
 import com.migros.couriertracking.entity.Store;
-import com.migros.couriertracking.exception.GenericException;
 import com.migros.couriertracking.mapper.StoreMapper;
 import com.migros.couriertracking.repository.dao.CourierDAO;
 import com.migros.couriertracking.repository.dao.CourierMovementHistoryDAO;
 import com.migros.couriertracking.repository.dao.StoreDAO;
 import com.migros.couriertracking.service.CalculatorService;
+import com.migros.couriertracking.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class TravelerManager extends Command<LocationRequestDTO> {
@@ -41,51 +42,68 @@ public class TravelerManager extends Command<LocationRequestDTO> {
 
     private static Logger logger = LoggerFactory.getLogger(TravelerManager.class);
 
+    private StoreDTO nearestStore;
+
 
     @Override
     public void execute(LocationRequestDTO locationRequestDTO) {
-        try {
+
+            validateNearestStore(locationRequestDTO);
+            validateLastMovement(locationRequestDTO);
+
             var courierId = locationRequestDTO.getCourierId();
             var courierMovementHistory = courierMovementHistoryDAO.getCourierMovementHistory(courierId);
 
-            if (courierId.equalsIgnoreCase(courierMovementHistory.getCourier().getCourierId())) {
-                updateExistingCourierMovement(locationRequestDTO, courierMovementHistory);
-            } else {
-                createNewCourierMovement(courierId);
-            }
-        } catch (Exception e) {
-            throw GenericException.builder()
-                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .errorCode(ErrorCode.COURIER_HISTORY_SAVING_ERROR)
-                    .errorMessage("courier history saving error !!")
-                    .build();
+            processCourierMovement(locationRequestDTO, courierId, courierMovementHistory);
+
+    }
+
+    private void processCourierMovement(LocationRequestDTO locationRequestDTO, Long courierId, Optional<CourierMovementHistory> courierMovementHistory) {
+        if (courierMovementHistory.isEmpty()) {
+            createNewCourierMovement(courierId);
+        } else {
+            updateExistingCourierMovement(locationRequestDTO, courierMovementHistory.get());
         }
     }
 
-    private void createNewCourierMovement(String courierId) {
-        var courier = courierDAO.getCourierById(courierId).orElseGet(null);
+    private void validateNearestStore(LocationRequestDTO locationRequestDTO) {
+        var nearestStore = findNearestStore(
+                locationRequestDTO.getLocation().getLatitude(),
+                locationRequestDTO.getLocation().getLongitude()
+        );
+        this.nearestStore = nearestStore;
+        if (Objects.isNull(nearestStore)) {
+            throw ExceptionUtils.buildGenericException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    ErrorCode.NOT_AVAILABLE_LAST_MOVEMENT,
+                    "There is no suitable store nearby!!"
+            );
+        }
+    }
 
+    private void validateLastMovement(LocationRequestDTO locationRequestDTO) {
+        if (!isAvailableLastMovement(locationRequestDTO.getCourierId())) {
+            throw ExceptionUtils.buildGenericException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    ErrorCode.NOT_AVAILABLE_LAST_MOVEMENT,
+                    "Courier last movement is not available !!"
+            );
+        }
+    }
+
+    private void updateExistingCourierMovement(LocationRequestDTO locationRequestDTO, CourierMovementHistory courierMovementHistory) {
+        saveCourierMovementToDatabase(courierMovementHistory, nearestStore);
+        logger.info("updated courier history {}", locationRequestDTO.getCourierId());
+    }
+
+    private void createNewCourierMovement(Long courierId) {
+        var courier = courierDAO.getCourierById(courierId).orElseGet(null);
         courierMovementHistoryDAO.saveCourierMovementHistory(CourierMovementHistory.builder()
                 .courier(courier)
                 .date(LocalDateTime.now())
                 .storeId(null).build());
-        Manager.entranceNotify(courier.getCourierId());
+        Manager.entranceNotify(Long.toString(courier.getCourierId()));
         logger.info("Added courier history {}" , courierId);
-    }
-
-    private void updateExistingCourierMovement(LocationRequestDTO locationRequestDTO, CourierMovementHistory courierMovementHistory) {
-        var courierId = locationRequestDTO.getCourierId();
-        var nearestStore = findNearestStore(locationRequestDTO.getLocation().getLatitude(), locationRequestDTO.getLocation().getLongitude());
-
-        if (!isAvailableLastMovement(courierId)) {
-            throw GenericException.builder()
-                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .errorCode(ErrorCode.NOT_AVAILABLE_LAST_MOVEMENT)
-                    .errorMessage("courier last movement is not available !!")
-                    .build();
-        }
-        saveCourierMovementToDatabase(courierMovementHistory, nearestStore);
-        logger.info("CourierMovementHistoryDAO: CourierMovementHistory added {}", courierId);
     }
 
     private void saveCourierMovementToDatabase(CourierMovementHistory courierMovementHistory, StoreDTO nearestStore) {
@@ -95,9 +113,9 @@ public class TravelerManager extends Command<LocationRequestDTO> {
         courierMovementHistoryDAO.saveCourierMovementHistory(courierMovementHistory);
     }
 
-    private boolean isAvailableLastMovement(String courierId) {
-        var lastEntranceTime = courierMovementHistoryDAO.getCourierMovementHistory(courierId).getDate();
-        return Objects.nonNull(lastEntranceTime) && !lastEntranceTime.isBefore(LocalDateTime.now().minusMinutes(1));
+    private boolean isAvailableLastMovement(Long courierId) {
+        var lastEntranceTime = courierMovementHistoryDAO.getCourierMovementHistory(courierId);
+        return lastEntranceTime.map(courierMovementHistory -> courierMovementHistory.getDate().isBefore(LocalDateTime.now().minusMinutes(1))).orElse(true);
     }
 
     private StoreDTO findNearestStore(double lat, double lng) {

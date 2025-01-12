@@ -15,6 +15,6 @@ public class StoreManager implements CourierListener {
 
     @Override
     public void notify(String courierId) {
-        logger.atDebug().log("Courier number {} entered the store" + courierId);
+        logger.info("Courier number {} entered the store" , courierId);
     }
 }

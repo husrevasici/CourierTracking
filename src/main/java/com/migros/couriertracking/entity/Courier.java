@@ -14,11 +14,11 @@ import java.util.List;
 @Setter
 public class Courier {
     @Id
-    private String courierId;
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long courierId;
     private String nameAndSurname;
-
-    private Double totalDistance = 0.0;
+    private String phoneNumber;
+    private String email;
 
     @OneToMany(mappedBy = "courier", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CourierLocation> courierLocations;

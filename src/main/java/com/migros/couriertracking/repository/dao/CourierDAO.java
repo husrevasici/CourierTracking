@@ -13,13 +13,12 @@ public class CourierDAO {
     @Autowired
     private CourierRepository courierRepository;
 
-    public Optional<Courier> getCourierById(String courierId) {
+    public Optional<Courier> getCourierById(Long courierId) {
         return Optional.ofNullable(courierRepository.findByCourierId(courierId));
     }
 
-    public Courier courierSave(Courier courier) {
-        return courierRepository.save(courier);
+    public void courierSave(Courier courier) {
+        courierRepository.save(courier);
     }
-
 
 }

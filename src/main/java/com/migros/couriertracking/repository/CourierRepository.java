@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CourierRepository extends JpaRepository<Courier, Long> {
-    Courier findByCourierId(String courierId);
+    Courier findByCourierId(Long courierId);
 }

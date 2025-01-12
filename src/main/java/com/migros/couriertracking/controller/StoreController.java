@@ -19,7 +19,7 @@ public class StoreController {
         this.storeService = storeService;
     }
 
-    @GetMapping("/")
+    @GetMapping()
     public List<StoreDTO> getStores() {
         return storeService.getAllStores();
     }

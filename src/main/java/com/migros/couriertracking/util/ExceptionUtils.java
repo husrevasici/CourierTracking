@@ -9,7 +9,7 @@ public class ExceptionUtils {
     // private constructor
     }
 
-    public static GenericException createGenericException(HttpStatus httpStatus, ErrorCode errorCode, String errorMessage) {
+    public static GenericException buildGenericException(HttpStatus httpStatus, ErrorCode errorCode, String errorMessage) {
         return GenericException.builder()
                 .httpStatus(httpStatus)
                 .errorCode(errorCode)

@@ -1,5 +1,6 @@
 package com.migros.couriertracking.manager;
 
+import com.migros.couriertracking.dto.CurierRequestDTO;
 import com.migros.couriertracking.dto.ErrorCode;
 import com.migros.couriertracking.dto.LocationRequestDTO;
 import com.migros.couriertracking.entity.Courier;
@@ -27,7 +28,8 @@ public class CourierManager extends Command<LocationRequestDTO>{
 
     private static Logger logger = LoggerFactory.getLogger(CourierManager.class);
     private static final String COURIER_NOT_FOUND_MESSAGE = "Courier not found!";
-    private static final String UNEXPECTED_ERROR_OCCURED = "n unexpected error occurred while executing location add";
+    private static final String UNEXPECTED_ERROR_OCCURED = "an unexpected error occurred while executing location add";
+    private static final String TOTAL_TRAVEL_DISTANCE_CALCULATE_ERROR = "error received when calculating total travel distance";
     private static final String COURIER_LOCATION_ADDED = "Courier location added";
 
 
@@ -36,7 +38,7 @@ public class CourierManager extends Command<LocationRequestDTO>{
         try {
             Courier courier = courierDAO
                     .getCourierById(locationRequestDTO.getCourierId())
-                    .orElseThrow(() -> ExceptionUtils.createGenericException(
+                    .orElseThrow(() -> ExceptionUtils.buildGenericException(
                             HttpStatus.NOT_FOUND,
                             ErrorCode.COUURIER_NOT_FOUND,
                             COURIER_NOT_FOUND_MESSAGE
@@ -48,7 +50,7 @@ public class CourierManager extends Command<LocationRequestDTO>{
             throw e;
         } catch (Exception e) {
             logger.error(UNEXPECTED_ERROR_OCCURED, e);
-            throw ExceptionUtils.createGenericException(
+            throw ExceptionUtils.buildGenericException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     ErrorCode.UNEXPECTED_ERROR_OCCURED,
                     UNEXPECTED_ERROR_OCCURED
@@ -57,11 +59,10 @@ public class CourierManager extends Command<LocationRequestDTO>{
     }
 
 
-    public Double getTotalTravelDistance(String courierId) {
+    public Double getTotalTravelDistance(Long courierId) {
         try {
             var locations = courierLocationDAO.getCourierLocations(courierId);
             return IntStream.range(0, locations.size() - 1)
-                    .parallel()
                     .mapToDouble(i -> calculatorService.calculateDistance(
                             locations.get(i).getLatitude(),
                             locations.get(i).getLongitude(),
@@ -70,12 +71,21 @@ public class CourierManager extends Command<LocationRequestDTO>{
                     ))
                     .sum();
         } catch (Exception e) {
-            throw ExceptionUtils.createGenericException(
+            throw ExceptionUtils.buildGenericException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    ErrorCode.UNEXPECTED_ERROR_OCCURED,
-                    UNEXPECTED_ERROR_OCCURED
+                    ErrorCode.TOTAL_TRAVEL_DISTANCE_CALCULATE_ERROR,
+                    TOTAL_TRAVEL_DISTANCE_CALCULATE_ERROR
             );
         }
     }
 
+    public void createCourier(CurierRequestDTO locationRequestDTO) {
+        Courier build = Courier.builder()
+                .nameAndSurname(locationRequestDTO.getNameAndSurname())
+                .phoneNumber(locationRequestDTO.getPhoneNumber())
+                .email(locationRequestDTO.getEmail())
+                .build();
+        courierDAO.courierSave(build);
+        logger.info(locationRequestDTO.getNameAndSurname() + " courier created");
+    }
 }

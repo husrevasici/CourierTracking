@@ -17,6 +17,6 @@ public interface CourierMovementHistoryRepository extends JpaRepository<CourierM
     @Query("UPDATE CourierMovementHistory c SET c.date = :newDate , c.storeId = :newStoreId WHERE c.courier.courierId = :courierId")
     void updateCourierId(@Param("newDate") LocalDateTime newDate, @Param("newStoreId") Long newStoreId, @Param("courierId") String courierId);
 
-    CourierMovementHistory findByCourier_CourierId(String courierCourierId);
+    CourierMovementHistory findByCourier_CourierId(Long courierCourierId);
 
 }

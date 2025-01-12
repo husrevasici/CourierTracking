@@ -1,6 +1,7 @@
 package com.migros.couriertracking.controller;
 
 import com.migros.couriertracking.constant.ApiUrls;
+import com.migros.couriertracking.dto.CurierRequestDTO;
 import com.migros.couriertracking.dto.LocationRequestDTO;
 import com.migros.couriertracking.dto.ResponseDTO;
 import com.migros.couriertracking.service.CourierService;
@@ -19,13 +20,18 @@ public class CourierController {
         this.courierService = courierService;
     }
 
+    @PostMapping(ApiUrls.ADD_NEW_COURIER)
+    public ResponseDTO createCourier(@Valid @RequestBody CurierRequestDTO curierRequestDTO) {
+        return courierService.createCourier(curierRequestDTO);
+    }
+
     @PostMapping(ApiUrls.ADD_COURIER_LOCATION_PATH)
     public ResponseDTO addLocation(@Valid @RequestBody LocationRequestDTO locationRequestDTO) {
         return courierService.addLocation(locationRequestDTO);
     }
 
     @GetMapping(ApiUrls.COURIER_TOTAL_DISTANCE_PATH)
-    public ResponseDTO getTotalTravelDistance(@PathVariable String courierId) {
+    public ResponseDTO getTotalTravelDistance(@PathVariable Long courierId) {
         return courierService.getTotalTravelDistance(courierId);
     }
 }

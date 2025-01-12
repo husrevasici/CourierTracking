@@ -34,7 +34,7 @@ public class CourierLocationDAO {
         }
     }
 
-    public List<CourierLocation> getCourierLocations(String courierId) {
+    public List<CourierLocation> getCourierLocations(Long courierId) {
         return courierLocationRepository.findAllByCourier_CourierId(courierId);
     }
 }
