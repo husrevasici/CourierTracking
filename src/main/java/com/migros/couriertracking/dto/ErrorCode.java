@@ -1,7 +1,7 @@
 package com.migros.couriertracking.dto;
 
 public enum ErrorCode {
-    COUURIER_NOT_FOUND,
+    COURIER_NOT_FOUND,
     COURIER_LOCATION_IS_NOT_ADDED,
     COURIER_HISTORY_SAVING_ERROR,
     NOT_AVAILABLE_LAST_MOVEMENT,

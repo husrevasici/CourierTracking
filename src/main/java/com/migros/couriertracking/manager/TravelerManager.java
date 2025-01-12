@@ -58,7 +58,7 @@ public class TravelerManager extends Command<LocationRequestDTO> {
 
     }
 
-    private void processCourierMovement(LocationRequestDTO locationRequestDTO, Long courierId, Optional<CourierMovementHistory> courierMovementHistory) {
+    protected void processCourierMovement(LocationRequestDTO locationRequestDTO, Long courierId, Optional<CourierMovementHistory> courierMovementHistory) {
         if (courierMovementHistory.isEmpty()) {
             createNewCourierMovement(courierId);
         } else {
@@ -66,7 +66,7 @@ public class TravelerManager extends Command<LocationRequestDTO> {
         }
     }
 
-    private void validateNearestStore(LocationRequestDTO locationRequestDTO) {
+    protected void validateNearestStore(LocationRequestDTO locationRequestDTO) {
         var nearestStore = findNearestStore(
                 locationRequestDTO.getLocation().getLatitude(),
                 locationRequestDTO.getLocation().getLongitude()
@@ -81,7 +81,7 @@ public class TravelerManager extends Command<LocationRequestDTO> {
         }
     }
 
-    private void validateLastMovement(LocationRequestDTO locationRequestDTO) {
+    protected void validateLastMovement(LocationRequestDTO locationRequestDTO) {
         if (!isAvailableLastMovement(locationRequestDTO.getCourierId())) {
             throw ExceptionUtils.buildGenericException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -91,12 +91,12 @@ public class TravelerManager extends Command<LocationRequestDTO> {
         }
     }
 
-    private void updateExistingCourierMovement(LocationRequestDTO locationRequestDTO, CourierMovementHistory courierMovementHistory) {
+    protected void updateExistingCourierMovement(LocationRequestDTO locationRequestDTO, CourierMovementHistory courierMovementHistory) {
         saveCourierMovementToDatabase(courierMovementHistory, nearestStore);
         logger.info("updated courier history {}", locationRequestDTO.getCourierId());
     }
 
-    private void createNewCourierMovement(Long courierId) {
+    protected void createNewCourierMovement(Long courierId) {
         var courier = courierDAO.getCourierById(courierId).orElseGet(null);
         courierMovementHistoryDAO.saveCourierMovementHistory(CourierMovementHistory.builder()
                 .courier(courier)
@@ -106,19 +106,19 @@ public class TravelerManager extends Command<LocationRequestDTO> {
         logger.info("Added courier history {}" , courierId);
     }
 
-    private void saveCourierMovementToDatabase(CourierMovementHistory courierMovementHistory, StoreDTO nearestStore) {
+    protected void saveCourierMovementToDatabase(CourierMovementHistory courierMovementHistory, StoreDTO nearestStore) {
         Store store = storeMapper.toEntity(nearestStore);
         courierMovementHistory.setStoreId(store.getId());
         courierMovementHistory.setDate(LocalDateTime.now());
         courierMovementHistoryDAO.saveCourierMovementHistory(courierMovementHistory);
     }
 
-    private boolean isAvailableLastMovement(Long courierId) {
+    protected boolean isAvailableLastMovement(Long courierId) {
         var lastEntranceTime = courierMovementHistoryDAO.getCourierMovementHistory(courierId);
         return lastEntranceTime.map(courierMovementHistory -> courierMovementHistory.getDate().isBefore(LocalDateTime.now().minusMinutes(1))).orElse(true);
     }
 
-    private StoreDTO findNearestStore(double lat, double lng) {
+    protected StoreDTO findNearestStore(double lat, double lng) {
         var allStore = storeDAO.getAllStore();
         var allStoreDTO = storeMapper.toDTOList(allStore);
         return allStoreDTO.stream()

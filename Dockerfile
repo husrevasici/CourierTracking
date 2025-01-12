@@ -1,5 +1,5 @@
 FROM openjdk:17-jdk-slim
+COPY target/courierTracking-0.0.1-SNAPSHOT.jar /app/courierTracking-0.0.1-SNAPSHOT.jar
 WORKDIR /app
-COPY target/courierTracking-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "courierTracking-0.0.1-SNAPSHOT.jar"]
 EXPOSE 8080

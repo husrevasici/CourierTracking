@@ -1,13 +1,13 @@
 package com.migros.couriertracking.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Builder
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CurierRequestDTO {
     @NotNull(message = "Name and surname cannot be null")
     private String nameAndSurname;

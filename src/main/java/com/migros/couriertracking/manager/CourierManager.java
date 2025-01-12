@@ -40,7 +40,7 @@ public class CourierManager extends Command<LocationRequestDTO>{
                     .getCourierById(locationRequestDTO.getCourierId())
                     .orElseThrow(() -> ExceptionUtils.buildGenericException(
                             HttpStatus.NOT_FOUND,
-                            ErrorCode.COUURIER_NOT_FOUND,
+                            ErrorCode.COURIER_NOT_FOUND,
                             COURIER_NOT_FOUND_MESSAGE
                     ));
             courierLocationDAO.saveCourierLocation(courier, locationRequestDTO.getLocation().getLatitude(), locationRequestDTO.getLocation().getLongitude());

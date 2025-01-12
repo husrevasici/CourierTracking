@@ -6,6 +6,8 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class LocationDTO {
     @NotNull(message = "Latitude cannot be null")
     private Double latitude;
