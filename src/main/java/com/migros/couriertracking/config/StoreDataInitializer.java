@@ -1,7 +1,6 @@
 package com.migros.couriertracking.config;
 
 import com.migros.couriertracking.entity.Store;
-import com.migros.couriertracking.manager.CourierManager;
 import com.migros.couriertracking.repository.StoreRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

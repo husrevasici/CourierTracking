@@ -10,8 +10,11 @@ import java.util.Optional;
 @Component
 public class CourierDAO {
 
-    @Autowired
-    private CourierRepository courierRepository;
+    private final CourierRepository courierRepository;
+
+    public CourierDAO(CourierRepository courierRepository) {
+        this.courierRepository = courierRepository;
+    }
 
     public Optional<Courier> getCourierById(Long courierId) {
         return Optional.ofNullable(courierRepository.findByCourierId(courierId));

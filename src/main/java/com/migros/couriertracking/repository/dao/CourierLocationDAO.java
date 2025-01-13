@@ -14,9 +14,12 @@ import java.util.List;
 @Component
 public class CourierLocationDAO {
 
-    @Autowired
-    private CourierLocationRepository courierLocationRepository;
+    private final CourierLocationRepository courierLocationRepository;
     private static final String COURIER_LOCATION_IS_NOT_ADDED = "The courier's location was not recorded.";
+
+    public CourierLocationDAO(CourierLocationRepository courierLocationRepository) {
+        this.courierLocationRepository = courierLocationRepository;
+    }
 
     public void saveCourierLocation(Courier courier, double lat, double lng) {
         try {

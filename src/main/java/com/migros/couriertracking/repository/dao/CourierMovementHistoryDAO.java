@@ -10,8 +10,11 @@ import java.util.Optional;
 @Component
 public class CourierMovementHistoryDAO {
 
-    @Autowired
-    private CourierMovementHistoryRepository courierMovementHistoryRepository;
+    private final CourierMovementHistoryRepository courierMovementHistoryRepository;
+
+    public CourierMovementHistoryDAO(CourierMovementHistoryRepository courierMovementHistoryRepository) {
+        this.courierMovementHistoryRepository = courierMovementHistoryRepository;
+    }
 
     public Optional<CourierMovementHistory> getCourierMovementHistory(Long courierId) {
         return Optional.ofNullable(courierMovementHistoryRepository.findByCourier_CourierId(courierId));

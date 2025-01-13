@@ -9,8 +9,11 @@ import java.util.List;
 
 @Component
 public class StoreDAO {
-    @Autowired
-    private StoreRepository storeRepository;
+    private final StoreRepository storeRepository;
+
+    public StoreDAO(StoreRepository storeRepository) {
+        this.storeRepository = storeRepository;
+    }
 
     public List<Store> getAllStore() {
         return storeRepository.findAll();

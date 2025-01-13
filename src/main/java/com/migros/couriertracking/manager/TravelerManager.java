@@ -67,11 +67,11 @@ public class TravelerManager extends Command<LocationRequestDTO> {
     }
 
     protected void validateNearestStore(LocationRequestDTO locationRequestDTO) {
-        var nearestStore = findNearestStore(
+        var foundNearestStore = findNearestStore(
                 locationRequestDTO.getLocation().getLatitude(),
                 locationRequestDTO.getLocation().getLongitude()
         );
-        this.nearestStore = nearestStore;
+        this.nearestStore = foundNearestStore;
         if (Objects.isNull(nearestStore)) {
             throw ExceptionUtils.buildGenericException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
